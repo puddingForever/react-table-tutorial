@@ -1,8 +1,9 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Icon } from '@chakra-ui/react';
 import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import { useState } from 'react';
@@ -11,6 +12,7 @@ import EditableCell from './EditableCell';
 import StatusCell from './StatusCell';
 import DateCell from './DateCell';
 import Filters from './Filters';
+import SortIcon from './icons/SortIcon';
 
 const columns = [
   {
@@ -32,6 +34,7 @@ const columns = [
       const status = row.getValue(columnId);
       return filterStatuses.includes(status?.id);
     },
+    enableSorting: false,
   },
   {
     accessorKey: 'due',
@@ -62,6 +65,7 @@ const TaskTable = () => {
     getCoreRowModel: getCoreRowModel(),
     columnResizeMode: 'onChange',
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     state: {
       // Tanstack가 만든거
       // 테이블의 UI 상태값 (페이징, 필터 )
@@ -93,6 +97,21 @@ const TaskTable = () => {
             {headerGroup.headers.map((header) => (
               <Box className="th" w={header.getSize()} key={header.id}>
                 {header.column.columnDef.header}
+                {header.column.getCanSort() && (
+                  <Icon
+                    as={SortIcon}
+                    mx={3}
+                    fontSize={14}
+                    onClick={header.column.getToggleSortingHandler()}
+                  />
+                )}
+
+                {
+                  {
+                    asc: '위로',
+                    desc: '아래로',
+                  }[header.column.getIsSorted()]
+                }
                 <Box
                   onTouchStart={header.getResizeHandler()}
                   onMouseDown={header.getResizeHandler()}

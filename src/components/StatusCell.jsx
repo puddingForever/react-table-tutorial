@@ -1,5 +1,9 @@
-import { Menu, MenuButton, MenuList, MenuItem } from '@chakra-ui/react';
+import { Menu, MenuButton, MenuList, MenuItem, Box } from '@chakra-ui/react';
 import { STATUSES } from '../data';
+
+export const ColorIcon = ({ color, ...props }) => (
+  <Box w="12px" h="12px" bg={color} borderRadius="3px" {...props} />
+);
 
 const StatusCell = ({ getValue, row, column, table }) => {
   const { name, color } = getValue() || {};
@@ -18,6 +22,7 @@ const StatusCell = ({ getValue, row, column, table }) => {
       </MenuButton>
       <MenuList>
         <MenuItem onClick={() => updateData(row.index, column.id, null)}>
+          <ColorIcon color="red.400" mr={3} />
           None
         </MenuItem>
         {STATUSES.map((status) => (
@@ -25,6 +30,7 @@ const StatusCell = ({ getValue, row, column, table }) => {
             onClick={() => updateData(row.index, column.id, status)}
             key={status.id}
           >
+            <ColorIcon color={status.color} mr={3} />
             {status.name}
           </MenuItem>
         ))}

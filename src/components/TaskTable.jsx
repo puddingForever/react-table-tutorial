@@ -2,12 +2,15 @@ import { Box } from '@chakra-ui/react';
 import {
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import { useState } from 'react';
 import DATA from '../data';
 import EditableCell from './EditableCell';
 import StatusCell from './StatusCell';
+import DateCell from './DateCell';
+import Filters from './Filters';
 
 const columns = [
   {
@@ -15,32 +18,57 @@ const columns = [
     header: 'TASK',
     size: 120,
     cell: EditableCell,
+    enableColumnFilter: true,
+    filterFn: 'includesString',
   },
   {
     accessorKey: 'status',
     header: 'STATUS',
     cell: StatusCell,
+    enableColumnFilter: true,
+    // tanstack가 자동으로 filterValue를 넣어줌
+    filterFn: (row, columnId, filterStatuses) => {
+      if (filterStatuses.length === 0) return true;
+      const status = row.getValue(columnId);
+      return filterStatuses.includes(status?.id);
+    },
   },
   {
     accessorKey: 'due',
     header: 'DUE',
-    cell: (props) => <p>{props.getValue()?.toLocaleTimeString()}</p>,
+    cell: DateCell,
   },
   {
     accessorKey: 'notes',
     header: 'NOTE',
-    cell: (props) => <p>{props.getValue()}</p>,
+    size: 120,
+    cell: EditableCell,
   },
 ];
 
 const TaskTable = () => {
   const [data, setData] = useState(DATA);
+  // filtering
+  const [columnFilters, setColumnFilters] = useState([
+    {
+      id: 'task',
+      value: 'Add',
+    },
+  ]);
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     columnResizeMode: 'onChange',
+    getFilteredRowModel: getFilteredRowModel(),
+    state: {
+      // Tanstack가 만든거
+      // 테이블의 UI 상태값 (페이징, 필터 )
+      columnFilters,
+    },
     meta: {
+      // 커스텀 값 ( Tanstank 공식 state가 아닌 개발자가 만든거 )
       updateData: (rowIndex, columnId, value) =>
         setData((prev) =>
           prev.map((row, index) =>
@@ -49,10 +77,15 @@ const TaskTable = () => {
         ),
     },
   });
+  console.log(columnFilters);
   // console.log(table.getHeaderGroups());
   // console.log(table.getRowModel());
   return (
     <Box>
+      <Filters
+        columnFilters={columnFilters}
+        setColumnFilters={setColumnFilters}
+      />
       {/* 헤더 */}
       <Box className="table" w={table.getTotalSize()}>
         {table.getHeaderGroups().map((headerGroup) => (

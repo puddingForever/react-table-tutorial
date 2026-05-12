@@ -1,8 +1,9 @@
-import { Box, Icon } from '@chakra-ui/react';
+import { Box, Button, ButtonGroup, Icon, Text } from '@chakra-ui/react';
 import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
@@ -66,6 +67,7 @@ const TaskTable = () => {
     columnResizeMode: 'onChange',
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(), // pagination
     state: {
       // Tanstack가 만든거
       // 테이블의 UI 상태값 (페이징, 필터 )
@@ -133,6 +135,25 @@ const TaskTable = () => {
           </Box>
         ))}
       </Box>
+      <br />
+      <Text mb={2}>
+        Page {table.getState().pagination.pageIndex + 1} of
+        {table.getPageCount()}
+      </Text>
+      <ButtonGroup size="sm" isAttached variant="outline">
+        <Button
+          onClick={() => table.previousPage()}
+          isDisabled={!table.getCanPreviousPage()}
+        >
+          {'<'}
+        </Button>
+        <Button
+          onClick={() => table.nextPage()}
+          isDisabled={!table.getCanNextPage()}
+        >
+          {'>'}
+        </Button>
+      </ButtonGroup>
     </Box>
   );
 };
